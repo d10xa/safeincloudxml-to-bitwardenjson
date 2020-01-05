@@ -1,0 +1,9 @@
+.attach_pid*
+.bloop/
+.DS_Store
+.idea/
+.metals/
+bin/
+project/project/
+project/target/
+target/
