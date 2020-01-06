@@ -13,32 +13,32 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
     def fieldsSetEqual(fieldNames: Set[String]): Boolean =
       card.fields
         .map(_.name)
-        .toSet == fieldNames
+        .toSet === fieldNames
     def containsField(
       name: String,
       value: String
     ): Boolean =
-      card.fields.find(_.name == name).exists(_.text.trim == value)
+      card.fields.find(_.name === name).exists(_.text.trim === value)
     def isTwitterSample =
-      card.title == "Twitter (Sample)" &&
+      card.title === "Twitter (Sample)" &&
         fieldsSetEqual(Set("Login", "Password", "Website")) &&
         containsField("Password", "Best23^Get^")
     def isPasswordSample =
-      card.title == "Passport (Sample)" &&
+      card.title === "Passport (Sample)" &&
         fieldsSetEqual(
           Set("Number", "Name", "Birthday", "Issued", "Expires")
         ) &&
         containsField("Number", "555111111") &&
         containsField("Name", "John Smith")
     def isVisaCardSample =
-      card.title == "Visa Card (Sample)" &&
+      card.title === "Visa Card (Sample)" &&
         fieldsSetEqual(
           Set("Number", "Owner", "Expires", "CVV", "PIN", "Blocking")
         ) &&
         containsField("Number", "5555123456789000") &&
         containsField("Owner", "John Smith")
     def isFacebookSample =
-      card.title == "Facebook (Sample)" &&
+      card.title === "Facebook (Sample)" &&
         fieldsSetEqual(
           Set(
             "Login",
@@ -50,18 +50,18 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
         containsField("Password", "early91*Fail*")
 
     def isGoogleSample =
-      card.title == "Google (Sample)" &&
+      card.title === "Google (Sample)" &&
         fieldsSetEqual(Set("Email", "Password", "Website")) &&
         containsField("Email", "john555@gmail.com") &&
         containsField("Password", "plain79{Area{")
 
     def isLaptopSample =
-      card.title == "Laptop (Sample)" &&
+      card.title === "Laptop (Sample)" &&
         fieldsSetEqual(Set("Login", "Password")) &&
         containsField("Password", "Save63\\apple\\")
 
     def isNoteSample =
-      card.title == "Note (Sample)" &&
+      card.title === "Note (Sample)" &&
         card.fields.isEmpty &&
         card.notes.contains("This is a sample note.")
 
@@ -77,7 +77,7 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
   def includeToExport(card: Card): Boolean = {
     val isSample = checkSample(card)
     if (card.title.contains(" (Sample)") && !isSample) {
-      println(s"$card")
+      println(s"card title contains (Sample): ${card.title}")
     }
     val isDeleted = card.deleted.getOrElse(false)
     val isTemplate = card.template.getOrElse(false)
@@ -95,7 +95,7 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
     fields: List[Field],
     name: String
   ): (Option[Field], List[Field]) = {
-    val index = fields.indexWhere(_.name.toLowerCase == name.toLowerCase)
+    val index = fields.indexWhere(_.name.toLowerCase === name.toLowerCase)
     if (index > -1) {
       (fields.get(index), fields.take(index) ++ fields.drop(index + 1))
     } else {
@@ -103,6 +103,7 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def extractByNames(
     fields: List[Field],
     names: List[String]
@@ -193,7 +194,7 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
     sicCardIdToBwItemId: String => String,
     card: Card
   ): BwItem = {
-    val folderId: Option[String] = card.labelId.toList match {
+    val labelId: Option[String] = card.labelId.toList match {
       case Nil => none[String]
       case head :: Nil => head.some
       case head :: xs =>
@@ -201,6 +202,7 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
         println(s"Loss labels. card: ${card.title}, labels: $otherLabels")
         head.some
     }
+    val folderId = labelId.map(sicLabelIdToBwFolderId)
 
     val (optLoginElem, restFields, _) = mkLogin(card)
 
@@ -210,10 +212,10 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
       `type` = TextType
     )
 
-    val fields = (restFields match {
-      case xs if xs.isEmpty => none
+    val fields: List[BwField] = (restFields match {
+      case xs if xs.isEmpty => none[List[BwField]]
       case xs => xs.map(fieldSicToBw).some
-    }).getOrElse(List.empty) :+ safeincloudMetadata
+    }).getOrElse(List.empty[BwField]) :+ safeincloudMetadata
 
     val itemType: BwItemType = bwItemType(card)
 
@@ -244,7 +246,7 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
           .map(_.folders)
           .flatMap { folders =>
             val folder = folders
-              .find(_.name == label.name)
+              .find(_.name === label.name)
             folder.map(f => (label, f))
           }
           .getOrElse(
@@ -280,12 +282,12 @@ class SafeInCloudToBitwarden(bwWithFolders: Option[BitwardenDatabase])
         .map(convertCardToItem(sicLabelIdToBwFolderId, sicCardIdToBwItemId, _))
 
     val totalCount = safeInCloud.cards.size
-    println(s"total safeInCloud cards count: $totalCount")
+    println(s"total safeInCloud cards count: ${totalCount.toString}")
     val filteredItemsCount = items.size
-    println(s"filtered safeInCloud cards count: $filteredItemsCount")
+    println(s"filtered safeInCloud cards count: ${filteredItemsCount.toString}")
     println(
       s"excluded count(samples and templates): " +
-        s"${totalCount - filteredItemsCount}"
+        s"${(totalCount - filteredItemsCount).toString}"
     )
     BitwardenDatabase(items = items, folders = sicLabelsToBwFolders.map(_._2))
   }

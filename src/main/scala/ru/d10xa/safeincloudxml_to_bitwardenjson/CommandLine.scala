@@ -68,11 +68,12 @@ object CommandLine {
       "plain-print",
       "print database in plain comparable format"
     )(
-      optsBw.orElse(optsSic)
+      optsBw.widen[PlainPrintParams]
+        .orElse(optsSic).widen[PlainPrintParams]
     )
 
   val command: Command[CliParams] =
-    Command("", "")(
+    Command[CliParams]("", "")(
       Opts.subcommand(sicToBw).orElse(Opts.subcommand(plainPrint))
     )
 

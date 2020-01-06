@@ -5,6 +5,7 @@ import io.circe.Codec
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.syntax._
+import cats.implicits._
 
 final case class BitwardenDatabase(
   folders: Seq[BwFolder],
@@ -54,6 +55,7 @@ final case class BwLogin(
   * [[https://github.com/bitwarden/jslib/blob/master/src/enums/cipherType.ts]]
   * [[https://github.com/bitwarden/jslib/blob/master/src/enums/secureNoteType.ts]]
   */
+@SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 final case class BwSecureNote(`type`: Int = 0)
 final case class BwIdentity(
   title: Option[String],
@@ -89,10 +91,10 @@ final case class BwItem(
   identity: Option[BwIdentity],
   card: Option[BwCard]) {
   def findFieldByName(name: String): Option[BwField] =
-    fields.flatMap(fs => fs.find(_.name == name))
+    fields.flatMap(fs => fs.find(_.name === name))
   def safeInCloudCardId: Option[String] =
     fields.flatMap(seq =>
-      seq.find(_.name == BwField.SAFE_IN_CLOUD_CARD_ID_NAME).flatMap(_.value)
+      seq.find(_.name === BwField.SAFE_IN_CLOUD_CARD_ID_NAME).flatMap(_.value)
     )
 }
 
@@ -135,8 +137,8 @@ object BitwardenDatabase {
       t.items
         .map { item =>
           val fields: Seq[String] = item.fields
-            .map(_.filter(f => f.name != BwField.SAFE_IN_CLOUD_CARD_ID_NAME))
-            .getOrElse(Seq.empty)
+            .map(_.filter(f => f.name =!= BwField.SAFE_IN_CLOUD_CARD_ID_NAME))
+            .getOrElse(Seq.empty[BwField])
             .map(i => s"${i.value.getOrElse("None")}")
           val loginFields: List[String] = item.login.toList
             .flatMap { l =>

@@ -1,5 +1,7 @@
 package ru.d10xa.safeincloudxml_to_bitwardenjson
 
+import java.util.UUID
+
 import com.lucidchart.open.xtract.ParseResult
 import com.lucidchart.open.xtract.XmlReader
 
@@ -49,8 +51,7 @@ class MainTest extends TestBase {
   test("main test") {
     val elem: Elem =
       <database>
-        <label name="Web Accounts" id="4" type="web_accounts"></label>
-        <card 
+        <card
           title="Google"
           id="999"
           symbol="g"
@@ -72,7 +73,6 @@ class MainTest extends TestBase {
           <field name="Password" type="password">7890</field>
           <field name="Password" type="password">abcdefg</field>
           <field name="Website" type="website">https://www.google.com</field>
-          <label_id>4</label_id>
         </card>
       </database>
 
@@ -93,6 +93,26 @@ class MainTest extends TestBase {
       .toSet
       .shouldBe(Set("7890", "abcdefg"))
     loginItem.uris.get.head.uri.shouldBe("https://www.google.com")
+  }
+
+  test("folder") {
+    val elem: Elem =
+      <database>
+        <label name="Web Accounts" id="4" type="web_accounts"></label>
+        <card title="Google" id="999">
+          <field name="Password" type="password">abcdefg</field>
+          <label_id>4</label_id>
+        </card>
+      </database>
+    val oldBw = BitwardenDatabase(folders =
+      Seq(BwFolder(UUID.randomUUID().toString, "Web Accounts")),
+      items = Seq.empty
+    )
+    val bw = parseAndConvert(elem, Some(oldBw))
+    bw.folders should have size 1
+    bw.items should have size 1
+    val item = bw.items.head
+    item.folderId should contain(oldBw.folders.head.id)
     bw.folders
       .find(f => item.folderId.contains(f.id))
       .get

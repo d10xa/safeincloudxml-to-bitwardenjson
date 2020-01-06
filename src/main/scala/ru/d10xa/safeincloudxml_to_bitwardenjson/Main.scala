@@ -27,12 +27,16 @@ object Main {
     val xml: Elem = XML.loadFile(p.toFile)
     val card: ParseResult[SafeInCloudDatabase] =
       XmlReader.of[SafeInCloudDatabase].read(xml)
-    require(card.errors.isEmpty, s"has errors ${card.errors}")
+    @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+    lazy val errorMsg = s"""has errors ${card.errors.toString()}"""
+    require(
+      card.errors.isEmpty,
+      errorMsg
+    )
     card.toOption
   }
 
-
-  def parseBwFile(p: Path): Option[BitwardenDatabase] = {
+  def parseBwFile(p: Path): Option[BitwardenDatabase] =
     parse(better.files.File(p).contentAsString)
       .flatMap(_.as[BitwardenDatabase]) match {
       case Right(v) => Some(v)
@@ -40,8 +44,6 @@ object Main {
         e.printStackTrace()
         None
     }
-  }
-
 
   def run(cliParams: CliParams): Unit =
     cliParams match {

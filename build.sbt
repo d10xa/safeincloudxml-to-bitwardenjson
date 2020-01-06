@@ -16,49 +16,49 @@ lazy val root = (project in file(".")).settings(
     "-unchecked", // warn about unchecked type parameters
     "-feature", // warn about misused language features
     "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
-    "-Xlint" // enable handy linter warnings
-//      "-Xfatal-warnings" // turn compiler warnings into errors
+    "-Xlint", // enable handy linter warnings
+    "-Xfatal-warnings" // turn compiler warnings into errors
   )
 )
 
-//wartremoverErrors in(Compile, compile) ++= Seq(
-//  Wart.Any,
-//  Wart.AnyVal,
-//  Wart.ArrayEquals,
-//  Wart.AsInstanceOf,
-//  Wart.DefaultArguments,
-//  Wart.EitherProjectionPartial,
-//  Wart.Enumeration,
-//  Wart.Equals,
-//  Wart.ExplicitImplicitTypes,
-//  Wart.FinalCaseClass,
-//  Wart.FinalVal,
-//  Wart.ImplicitConversion,
-//  Wart.ImplicitParameter,
-//  Wart.IsInstanceOf,
-//  Wart.JavaConversions,
-//  Wart.JavaSerializable,
-//  Wart.LeakingSealed,
-//  Wart.MutableDataStructures,
-//  Wart.NonUnitStatements,
-//  Wart.Nothing,
-//  Wart.Null,
-//  Wart.Option2Iterable,
+wartremoverErrors in(Compile, compile) ++= Seq(
+  Wart.Any,
+  Wart.AnyVal,
+  Wart.ArrayEquals,
+  Wart.AsInstanceOf,
+  Wart.DefaultArguments,
+  Wart.EitherProjectionPartial,
+  Wart.Enumeration,
+  Wart.Equals,
+  Wart.ExplicitImplicitTypes,
+  Wart.FinalCaseClass,
+  Wart.FinalVal,
+  Wart.ImplicitConversion,
+  Wart.ImplicitParameter,
+  Wart.IsInstanceOf,
+  Wart.JavaConversions,
+  Wart.JavaSerializable,
+  Wart.LeakingSealed,
+  Wart.MutableDataStructures,
+  Wart.NonUnitStatements,
+  Wart.Nothing,
+  Wart.Null,
+  Wart.Option2Iterable,
 //  Wart.OptionPartial,
-//  Wart.Overloading,
-//  Wart.Product,
-//  Wart.PublicInference,
-//  Wart.Recursion,
-//  Wart.Return,
-//  Wart.Serializable,
-//  Wart.StringPlusAny,
-//  Wart.Throw,
-//  Wart.ToString,
-//  Wart.TraversableOps,
-//  Wart.TryPartial,
-//  Wart.Var,
-//  Wart.While
-//)
+  Wart.Overloading,
+  Wart.Product,
+  Wart.PublicInference,
+  Wart.Recursion,
+  Wart.Return,
+  Wart.Serializable,
+  Wart.StringPlusAny,
+  Wart.Throw,
+  Wart.ToString,
+  Wart.TraversableOps,
+  Wart.TryPartial,
+  Wart.Var,
+  Wart.While
+)
 
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
